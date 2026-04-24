@@ -89,6 +89,7 @@ HOME=${SNAP_COMMON} virt-dib ${DEBUG} \
     -p $SNAP/usr/local/lib/python3.12/dist-packages/diskimage_builder/elements \
     -p $SNAP/usr/local/lib/elements \
     --formats raw \
+    --network \
     --name $TEMP_IMAGE_NAME \
     --envvar DISTRO_NAME=ubuntu \
     --envvar DIB_PYTHON_VERSION=3 \
