@@ -296,6 +296,7 @@ parts:
           patch -p1 < $CRAFT_PROJECT_DIR/patch/patch-libguestfs-appliance-init-chrony.patch
       fi
       patch -p1 < $CRAFT_PROJECT_DIR/patch/patch-libguestfs-appliance-init-link-up.patch
+      patch -p1 < $CRAFT_PROJECT_DIR/patch/patch-libguestfs-appliance-add-dhcpcd-support-on-Debian.patch
       autoreconf
       craftctl default
       rm -f /snap/$CRAFT_PROJECT_NAME/current
