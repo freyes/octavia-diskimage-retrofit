@@ -1,0 +1,36 @@
+From 91fab3f498b6847454656acd2f3d5788c533033b Mon Sep 17 00:00:00 2001
+From: Daniel Gomez <da.gomez@samsung.com>
+Date: Wed, 5 Feb 2025 09:10:31 +0000
+Subject: [PATCH] appliance: add dhcpcd support on Debian
+
+Debian has replaced the deprecated isc-dhcp-client (dhclient) with
+dhcpcd-base (dhcpcd) as the default DHCP client [1]. This causes network
+issues in virt-builder since isc-dhcp-client is no longer installed
+by default.
+
+Add support for dhcpcd (dhcpcd-base package) in Debian.
+
+[1] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1041066
+
+Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
+---
+ appliance/packagelist.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/appliance/packagelist.in b/appliance/packagelist.in
+index 7b6e9f23f..2062f20bb 100644
+--- a/appliance/packagelist.in
++++ b/appliance/packagelist.in
+@@ -74,7 +74,9 @@ dnl iproute has been renamed to iproute2
+   iputils-ping
+   iputils-arping
+   iputils-tracepath
++dnl isc-dhcp-client has been replaced with dhcpcd-base
+   isc-dhcp-client
++  dhcpcd-base
+   ldmtool
+   libc-bin
+   librpm9
+-- 
+2.51.0
+

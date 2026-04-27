@@ -13,7 +13,7 @@ $NAME: [-dhr] [-u Ubuntu Cloud Archive pocket] [-O output format] input output
     -h    Dislay help/usage
     -m    Specify Ubuntu mirror (e.g. 'deb http://example.com/ubuntu jammy main universe\ndeb http://example.com/ubuntu jammy-security main universe\ndeb http://example.com/ubuntu jammy-updates main universe')
     -r    Do not resize image before retrofitting
-    -u    Specify Ubuntu Cloud Archive pocket (e.g. 'yoga')
+    -u    Specify Ubuntu Cloud Archive pocket (e.g. 'caracal')
     -p    Specify PPA to add to image
     -O    Specify output format (default: 'qcow2')
 EOF
@@ -65,7 +65,7 @@ fi
 
 # Set defaults
 DIB_UBUNTU_MIRROR=${DIB_UBUNTU_MIRROR:-""}
-DIB_UBUNTU_CLOUD_ARCHIVE=${DIB_UBUNTU_CLOUD_ARCHIVE:-yoga}
+DIB_UBUNTU_CLOUD_ARCHIVE=${DIB_UBUNTU_CLOUD_ARCHIVE:-caracal}
 DIB_UBUNTU_CLOUD_ARCHIVE_MIRROR=${DIB_UBUNTU_CLOUD_ARCHIVE_MIRROR:-""}
 DIB_UBUNTU_PPA=${DIB_UBUNTU_PPA:-""}
 DIB_OCTAVIA_AMP_USE_NFTABLES=${DIB_OCTAVIA_AMP_USE_NFTABLES:-False}
@@ -85,10 +85,11 @@ if [ "$RESIZE" != " " ]; then
 fi
 
 HOME=${SNAP_COMMON} virt-dib ${DEBUG} \
-    -B $SNAP/usr/lib/python3.10/site-packages/diskimage_builder/lib \
-    -p $SNAP/usr/lib/python3.10/site-packages/diskimage_builder/elements \
+    -B $SNAP/usr/local/lib/python3.12/dist-packages/diskimage_builder/lib \
+    -p $SNAP/usr/local/lib/python3.12/dist-packages/diskimage_builder/elements \
     -p $SNAP/usr/local/lib/elements \
     --formats raw \
+    --network \
     --name $TEMP_IMAGE_NAME \
     --envvar DISTRO_NAME=ubuntu \
     --envvar DIB_PYTHON_VERSION=3 \

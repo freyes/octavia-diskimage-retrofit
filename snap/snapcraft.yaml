@@ -21,12 +21,12 @@ description: |
 
   **NOTE** The tool will use KVM acceleration when available.
 confinement: classic
-base: core22
-architectures:
-  - build-on: amd64
-  - build-on: arm64
-  - build-on: ppc64el
-  - build-on: s390x
+base: core24
+platforms:
+  amd64:
+  arm64:
+  ppc64el:
+  s390x:
 
 environment:
   # To enable execution of binaries from snap, and the host operating system,
@@ -46,7 +46,7 @@ environment:
   LIBGUESTFS_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/guestfs/appliance
   TMPDIR: $SNAP_COMMON/tmp
   PYTHONHOME: $SNAP
-  PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/lib/python3.10:$SNAP/usr/lib/python3.10/lib-dynload
+  PYTHONPATH: $SNAP/usr/local/lib/python3.12/dist-packages:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.12/site-packages:$SNAP/usr/lib/python3.12:$SNAP/usr/lib/python3.12/lib-dynload
 apps:
   octavia-diskimage-retrofit:
     command: bin/retrofit.sh
@@ -68,7 +68,7 @@ parts:
     plugin: dump
     source: https://git.launchpad.net/~ubuntu-openstack-dev/ubuntu/+source/octavia
     source-type: git
-    source-branch: stable/yoga
+    source-branch: stable/2024.1
     organize:
       elements/*: usr/local/lib/elements/
     stage:
@@ -81,11 +81,11 @@ parts:
     plugin: dump
     source: https://git.launchpad.net/~ubuntu-openstack-dev/ubuntu/+source/python-diskimage-builder
     source-type: git
-    source-branch: stable/yoga
+    source-branch: stable/2024.1
     build-environment:
       - PATH: $CRAFT_PART_INSTALL/usr/bin:$PATH
       - PYTHONHOME: $CRAFT_PART_INSTALL
-      - PYTHONPATH: $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$CRAFT_PART_INSTALL/usr/lib/python3.10/site-packages:$CRAFT_PART_INSTALL/usr/lib/python3.10:$CRAFT_PART_INSTALL/usr/lib/python3.10/lib-dynload
+      - PYTHONPATH: $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$CRAFT_PART_INSTALL/usr/lib/python3.12/site-packages:$CRAFT_PART_INSTALL/usr/lib/python3.12:$CRAFT_PART_INSTALL/usr/lib/python3.12/lib-dynload
     override-build: |
       patch -p1 < $CRAFT_PROJECT_DIR/patch/patch-diskimage-builder-manifests-fix-chown.patch
 
@@ -98,14 +98,13 @@ parts:
       find $CRAFT_PART_INSTALL -type f -print0 | xargs -0 sed -i '1 s/^#\!.*python3$/#\!\/usr\/bin\/env python3/'
       craftctl default
     stage-packages:
-      - libpython3.10
-      - libpython3.10-minimal
-      - libpython3.10-stdlib
+      - libpython3.12
+      - libpython3.12-minimal
+      - libpython3.12-stdlib
       - python3-minimal
-      - python3.10-minimal
+      - python3.12-minimal
       - python3-pip
       - python3-setuptools
-      - python3-distutils
       - python3-pkg-resources
       - python3-py
       - python3-babel
@@ -118,16 +117,18 @@ parts:
   qemu:
     source: https://git.launchpad.net/ubuntu/+source/qemu
     source-type: git
-    source-branch: ubuntu/jammy-updates
+    source-branch: ubuntu/noble-updates
     plugin: autotools
     build-attributes:
       - enable-patchelf
+    build-environment:
+      - PYTHON: /usr/bin/python3
     override-build: |
       dpkg-source --before-build .
       rm -rf build && mkdir build && cd build
       ../configure \
           --extra-cflags='-g -O2 -fdebug-prefix-map=/home/ubuntu/qemu-2.11+dfsg=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -DVENDOR_UBUNTU' \
-          --extra-ldflags='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,--as-needed -Wl,-dynamic-linker=/snap/core22/current/lib64/ld-linux-x86-64.so.2 -Wl,-rpath=/snap/core22/current/lib/x86_64-linux-gnu' \
+          --extra-ldflags='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,--as-needed -Wl,-dynamic-linker=/snap/core24/current/lib64/ld-linux-x86-64.so.2 -Wl,-rpath=/snap/core24/current/lib/x86_64-linux-gnu' \
           --prefix=/snap/$CRAFT_PROJECT_NAME/current/usr \
           --bindir=bin \
           --libdir=lib/$CRAFT_ARCH_TRIPLET \
@@ -137,7 +138,7 @@ parts:
           --localstatedir=/var/snap/$CRAFT_PROJECT_NAME/common \
           --interp-prefix=/var/snap/$CRAFT_PROJECT_NAME/common/etc/qemu-binfmt/%M \
           --firmwarepath="/snap/$CRAFT_PROJECT_NAME/current/usr/share/qemu:/snap/$CRAFT_PROJECT_NAME/current/usr/share/seabios:/snap/$CRAFT_PROJECT_NAME/current/usr/lib/ipxe/qemu" \
-          --disable-blobs \
+          --disable-install-blobs \
           --disable-strip \
           --disable-user \
           --enable-modules \
@@ -154,16 +155,13 @@ parts:
           --disable-vnc \
           --disable-vnc-sasl \
           --disable-vnc-jpeg \
-          --disable-vnc-png \
           --disable-spice \
           --disable-curses \
           --disable-xen \
           --enable-seccomp \
-          --enable-xfsctl \
           --enable-kvm \
           --enable-vhost-net \
-          --target-list="aarch64-softmmu ppc64-softmmu riscv64-softmmu s390x-softmmu x86_64-softmmu" \
-          --with-git-submodules=ignore
+          --target-list="aarch64-softmmu ppc64-softmmu riscv64-softmmu s390x-softmmu x86_64-softmmu"
           make -j${CRAFT_PARALLEL_BUILD_COUNT}
           make install DESTDIR=${CRAFT_PART_INSTALL}
     build-packages:
@@ -184,7 +182,6 @@ parts:
       - libcapstone-dev
       - pkg-config
       - libpixman-1-dev
-      - python-all-dev
       - libglib2.0-dev
       - glusterfs-common
       - gnutls-dev
@@ -250,7 +247,7 @@ parts:
       - seabios
       - ipxe-qemu
       - libnuma1
-      - libaio1
+      - libaio1t64
       - libcapstone4
       - libfdt1
       - libpixman-1-0
@@ -262,6 +259,10 @@ parts:
       - libfdt1
       - libibverbs1
       - libslirp0
+      - libfuse3-3
+      - libgbm1
+      - libepoxy0
+      - libvirglrenderer1
       - qemu-system-data
       - on amd64:
         - libpmem1
@@ -275,7 +276,7 @@ parts:
     after: [qemu]
     source: https://git.launchpad.net/ubuntu/+source/libguestfs
     source-type: git
-    source-tag: ubuntu/jammy
+    source-branch: ubuntu/jammy
     plugin: autotools
     build-attributes:
       - enable-patchelf
@@ -295,6 +296,7 @@ parts:
           patch -p1 < $CRAFT_PROJECT_DIR/patch/patch-libguestfs-appliance-init-chrony.patch
       fi
       patch -p1 < $CRAFT_PROJECT_DIR/patch/patch-libguestfs-appliance-init-link-up.patch
+      patch -p1 < $CRAFT_PROJECT_DIR/patch/patch-libguestfs-appliance-add-dhcpcd-support-on-Debian.patch
       autoreconf
       craftctl default
       rm -f /snap/$CRAFT_PROJECT_NAME/current
@@ -317,10 +319,8 @@ parts:
       root/stage/: /
     autotools-configure-parameters:
       - --disable-silent-rules
-      - --disable-gnulib-tests
       - --with-readline
       - --disable-haskell
-      - --disable-java
       - --disable-golang
       - --disable-python
       - --disable-perl
@@ -364,7 +364,7 @@ parts:
       - fdisk
       - file
       - flex
-      - libfuse2
+      - libfuse2t64
       - libfuse-dev
       - gawk
       - gdisk
@@ -412,6 +412,7 @@ parts:
       - libtest-pod-coverage-perl
       - libtest-pod-perl
       - libtool
+      - libtirpc-dev
       - libtsk-dev
       - libxml2-dev
       - libxml2-utils
@@ -461,6 +462,7 @@ parts:
       - libgettext-ocaml-dev
       - libhivex-ocaml-dev
       - libounit-ocaml-dev
+      - libaugeas-ocaml-dev
       - libvirt-ocaml-dev
       - ocaml-findlib
       - ocaml-nox
@@ -480,16 +482,17 @@ parts:
       - libmagic1
       - uuid-runtime
       - libjansson4
-      - libfuse2
+      - libfuse2t64
       - libfuse3-3
       - fuse3
+      - libtirpc3t64
     stage:
       - -lib64
   guestfs-tools:
     after: [libguestfs]
-    source: https://salsa.debian.org/libvirt-team/guestfs-tools.git
+    source: https://git.launchpad.net/ubuntu/+source/guestfs-tools
     source-type: git
-    source-tag: debian/1.46.1-4
+    source-branch: ubuntu/jammy
     plugin: autotools
     build-attributes:
       - enable-patchelf
@@ -561,7 +564,7 @@ parts:
       - findutils
       - grep
       - util-linux
-      - libicu70
+      - libicu74
       - libxml2
       - libc-bin
       - lsb-release

@@ -11,3 +11,10 @@ if [ ! -z "${DIB_UBUNTU_MIRROR}" ]; then
     printf '%b\n' "$DIB_UBUNTU_MIRROR" >> /etc/apt/sources.list
     apt-get update
 fi
+
+# Enable the 'universe' component for Ubuntu Noble and later, where packages
+# such as amphora-agent are no longer in 'main' but in 'universe'.
+if [[ "${DIB_RELEASE}" > "mantic" ]]; then
+    add-apt-repository -y universe
+    apt-get update
+fi
