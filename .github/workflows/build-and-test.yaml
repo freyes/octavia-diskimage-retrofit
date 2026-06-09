@@ -23,7 +23,10 @@ jobs:
               https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img
       - name: Retrofitting noble image
         run: |
+          set -ex
           cd /var/snap/octavia-diskimage-retrofit/common/tmp
+          mkdir -p /var/snap/octavia-diskimage-retrofit/common/.cache
+          ls -lR /var/snap/octavia-diskimage-retrofit/common/
           octavia-diskimage-retrofit -d noble.img noble-amphora.qcow2
 
       - name: Test if the image can be booted
