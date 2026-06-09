@@ -84,6 +84,9 @@ if [ "$RESIZE" != " " ]; then
     qemu-img resize -f raw $TEMP_IMAGE_FILE +4G
 fi
 
+test -d ${SNAP_COMMON}/.cache || mkdir -p ${SNAP_COMMON}/.cache
+export XDG_CACHE_HOME=${SNAP_COMMON}/.cache
+
 HOME=${SNAP_COMMON} virt-dib ${DEBUG} \
     -B $SNAP/usr/local/lib/python3.12/dist-packages/diskimage_builder/lib \
     -p $SNAP/usr/local/lib/python3.12/dist-packages/diskimage_builder/elements \
