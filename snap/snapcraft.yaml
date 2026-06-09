@@ -166,7 +166,6 @@ parts:
           make install DESTDIR=${CRAFT_PART_INSTALL}
     build-packages:
       - libaio-dev
-      - acpica-tools
       - libattr1-dev
       - libcap-dev
       - libcap-ng-dev
@@ -237,10 +236,13 @@ parts:
       - fcode-utils
       - xsltproc
       - on amd64:
+        - acpica-tools
         - libpmem-dev
       - on arm64:
+        - acpica-tools
         - libpmem-dev
       - on ppc64el:
+        - acpica-tools
         - libpmem-dev
     stage-packages:
       # Note that some stage-packages are omitted here because of collissions
