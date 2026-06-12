@@ -87,7 +87,7 @@ fi
 test -d ${SNAP_COMMON}/.cache || mkdir -p ${SNAP_COMMON}/.cache
 export XDG_CACHE_HOME=${SNAP_COMMON}/.cache
 
-HOME=${SNAP_COMMON} virt-dib ${DEBUG} \
+env HOME=${SNAP_COMMON} LD_LIBRARY_PATH=$SNAP/usr/lib/$ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$ARCH_TRIPLET:$SNAP/lib virt-dib ${DEBUG} \
     -B $SNAP/usr/local/lib/python3.12/dist-packages/diskimage_builder/lib \
     -p $SNAP/usr/local/lib/python3.12/dist-packages/diskimage_builder/elements \
     -p $SNAP/usr/local/lib/elements \
@@ -101,7 +101,7 @@ HOME=${SNAP_COMMON} virt-dib ${DEBUG} \
     --envvar DIB_UBUNTU_CLOUD_ARCHIVE_MIRROR="${DIB_UBUNTU_CLOUD_ARCHIVE_MIRROR}" \
     --envvar DIB_UBUNTU_PPA=$DIB_UBUNTU_PPA \
     --envvar DIB_OCTAVIA_AMP_USE_NFTABLES=$DIB_OCTAVIA_AMP_USE_NFTABLES \
-    --envvar http_proxy="${http_proxy}" \
+    --envvar http_proxy="${http_proxy:-}" \
     --envvar DIB_INIT_SYSTEM=systemd \
     --python $SNAP/usr/bin/python3 \
     --install-type package \
