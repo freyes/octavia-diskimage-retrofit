@@ -44,8 +44,9 @@ jobs:
 
           timeout 300 bash -c 'until nc -z localhost 2222; do echo -n .; sleep 5; done'
 
+          # Waitfor up to 10m for the 'login:' string to show up in the console
+          timeout 10m bash -c 'until grep "login:" serial.log; do echo -n .; sleep 5;done'
           tail -n 10 serial.log
-          grep "login:" serial.log
 
       - name: Upload built snap artifact
         if: always()
