@@ -33,14 +33,14 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -qy qemu-system-x86
           sudo qemu-system-x86_64 \
-              -m 2G \
-              -drive file=/var/snap/octavia-diskimage-retrofit/common/tmp/noble-amphora.qcow2,format=qcow2 \
-              -nographic \
-              -serial mon:stdio,logfile=serial.log \
-              -display none \
-              -device virtio-net-pci,netdev=net0 \
-              -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-              -accel kvm &
+            -m 2G \
+            -drive file=/var/snap/octavia-diskimage-retrofit/common/tmp/noble-amphora.qcow2,format=qcow2 \
+            -chardev file,id=serial0,path=serial.log \
+            -serial chardev:serial0 \
+            -display none \
+            -device virtio-net-pci,netdev=net0 \
+            -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+            -accel kvm &
 
           timeout 300 bash -c 'until nc -z localhost 2222; do echo -n .; sleep 5; done'
 
